@@ -1,4 +1,5 @@
 from pathlib import Path
+from ceo_agent import run_ceo_agent
 
 from research_agent import research_project
 from planner import create_plan
@@ -15,6 +16,33 @@ from manifest_generator import generate_manifest
 from parsers.file_parser import save_generated_files
 from validators.output_validator import (
     validate_agent_output
+)
+from validators.ceo_validator import (
+    validate_ceo_output
+)
+
+from validators.frontend_validator import (
+    validate_frontend_output
+)
+
+from validators.backend_validator import (
+    validate_backend_output
+)
+
+from validators.database_validator import (
+    validate_database_output
+)
+
+from validators.security_validator import (
+    validate_security_output
+)
+
+from validators.devops_validator import (
+    validate_devops_output
+)
+
+from validators.cyber_validator import (
+    validate_cyber_output
 )
 from cyber_agent import run_cyber_review
 from memory_agent import (
@@ -92,6 +120,7 @@ selected_workers = [
 project = Path("generated_project")
 
 folders = [
+    "executive",
     "planning",
     "frontend",
     "backend",
@@ -107,6 +136,34 @@ for folder in folders:
         parents=True,
         exist_ok=True
     )
+# ==================================
+# CEO AGENT
+# ==================================
+
+print("\nGenerating CEO Analysis...")
+
+ceo_output = run_ceo_agent(goal)
+
+print("\nCEO RESPONSE")
+print("=" * 60)
+print(ceo_output[:3000])
+print("=" * 60)
+
+if not validate_ceo_output(ceo_output):
+
+    print("Invalid CEO format")
+
+    ceo_output = run_ceo_agent(goal)
+
+success = save_generated_files(
+    project / "executive",
+    ceo_output
+)
+
+if success:
+    print("CEO Analysis Saved")
+else:
+    print("CEO Analysis Save Failed")
 
 # ==================================
 # SAVE PLAN
@@ -172,7 +229,7 @@ if "frontend" in selected_workers:
     print(frontend[:3000])
     print("=" * 60)
 
-    if not validate_agent_output(frontend):
+    if not validate_frontend_output(frontend):
 
         print("Invalid Frontend format")
 
@@ -209,7 +266,7 @@ if "backend" in selected_workers:
     print(backend[:3000])
     print("=" * 60)
 
-    if not validate_agent_output(backend):
+    if not validate_backend_output(backend):
 
         print("Invalid Backend format")
 
@@ -239,9 +296,7 @@ if "database" in selected_workers:
         goal,
         tech_stack
     )
-
-    if not validate_agent_output(database):
-
+    if not validate_database_output(database):
         print("Invalid Database format")
 
         database = generate_database(
@@ -272,7 +327,7 @@ if "security" in selected_workers:
         tech_stack
     )
 
-    if not validate_agent_output(security):
+    if not validate_security_output(security):
 
         print("Invalid Security format")
 
@@ -309,7 +364,7 @@ if "devops" in selected_workers:
     print(devops[:3000])
     print("=" * 60)
 
-    if not validate_agent_output(devops):
+    if not validate_devops_output(devops):
 
         print("Invalid DevOps format")
 
@@ -346,8 +401,7 @@ print("=" * 60)
 
 attempts = 0
 
-while not validate_agent_output(cyber):
-
+while not validate_cyber_output(cyber):
     attempts += 1
 
     print(

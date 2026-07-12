@@ -1,24 +1,23 @@
 import re
 
+
 def validate_agent_output(text):
 
     if not text:
         return False
 
-    patterns = [
-        r"===FILE:",
-        r"# FILE:",
-        r"==FILE:"
-    ]
+    files = re.findall(
+        r"===FILE:(.*?)===",
+        text,
+        re.DOTALL
+    )
 
-    for pattern in patterns:
+    if not files:
+        return False
 
-        matches = re.findall(
-            pattern,
-            text
-        )
+    sections = text.count("===FILE:")
 
-        if len(matches) >= 1:
-            return True
+    if sections != len(files):
+        return False
 
-    return False
+    return True
